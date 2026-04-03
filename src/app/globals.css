@@ -1,26 +1,121 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --radius: 0.625rem;
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: oklch(0.98 0.002 247);
+  --foreground: oklch(0.145 0.013 248);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.013 248);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0.013 248);
+  --primary: oklch(0.527 0.154 162);
+  --primary-foreground: oklch(0.985 0.001 106);
+  --secondary: oklch(0.961 0.006 248);
+  --secondary-foreground: oklch(0.205 0.013 248);
+  --muted: oklch(0.961 0.006 248);
+  --muted-foreground: oklch(0.556 0.013 248);
+  --accent: oklch(0.943 0.029 255);
+  --accent-foreground: oklch(0.205 0.013 248);
+  --destructive: oklch(0.577 0.245 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0.006 248);
+  --input: oklch(0.922 0.006 248);
+  --ring: oklch(0.527 0.154 162);
+  --positive: oklch(0.527 0.154 162);
+  --negative: oklch(0.577 0.245 27);
+}
+
+.dark {
+  --background: oklch(0.073 0.016 258);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.108 0.016 258);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.108 0.016 258);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.696 0.173 162);
+  --primary-foreground: oklch(0.073 0.016 258);
+  --secondary: oklch(0.167 0.016 258);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.167 0.016 258);
+  --muted-foreground: oklch(0.702 0.013 248);
+  --accent: oklch(0.167 0.016 258);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.167 0.016 258);
+  --input: oklch(0.167 0.016 258);
+  --ring: oklch(0.696 0.173 162);
+  --positive: oklch(0.696 0.173 162);
+  --negative: oklch(0.704 0.191 22);
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    var(--secondary) 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }

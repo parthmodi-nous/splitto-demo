@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npx shadcn@latest add button badge card dialog dropdown-menu select tabs switch label input textarea separator avatar progress scroll-area tooltip popover alert-dialog sonner --yes)",
+      "Bash(npx shadcn@latest add checkbox slider skeleton --yes)",
+      "Bash(npx tsc:*)",
+      "Bash(ls /c/Users/parthrm/Documents/Projects/splitto/src/components/ui/command*)",
+      "Bash(node:*)",
+      "Bash(pnpm db:generate:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npx next:*)",
+      "Bash(pnpm db:push)",
+      "Bash(psql -U postgres -c \"\\\\l\")"
+    ]
+  }
+}
