@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Settings, Plus, Users } from 'lucide-react';
+import { Settings, Plus, Users, Download } from 'lucide-react';
 import { getGroupWithMembers } from '@/actions/groups';
 import { getGroupExpenses } from '@/actions/expenses';
 import { getGroupBalances, getSimplifiedDebts } from '@/actions/settlements';
@@ -82,35 +82,39 @@ async function BalancesTab({ groupId }: { groupId: string }) {
 
   return (
     <div className="space-y-2">
-      {balances.map((item) => (
-        <div
-          key={item.user.id}
-          className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
-        >
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground text-sm">{item.user.name}</p>
-            <p className="text-xs text-muted-foreground">
-              Paid {formatCurrency(item.totalPaid, item.currency)} · Owes {formatCurrency(item.totalOwed, item.currency)}
-            </p>
-          </div>
+      {balances.map((item) => {
+        const isPositive = item.netBalance > 0;
+        const isNeutral = item.netBalance === 0;
+        return (
           <div
-            className={cn(
-              'font-semibold text-sm',
-              item.netBalance > 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : item.netBalance < 0
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : 'text-muted-foreground',
-            )}
+            key={item.user.id}
+            className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
           >
-            {item.netBalance === 0
-              ? 'Settled'
-              : item.netBalance > 0
-                ? `+${formatCurrency(item.netBalance, item.currency)}`
-                : formatCurrency(item.netBalance, item.currency)}
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-foreground text-sm">{item.user.name}</p>
+              <p className="text-xs text-muted-foreground">
+                Spent {formatCurrency(item.totalPaid, item.currency)} · Share {formatCurrency(item.totalOwed, item.currency)}
+              </p>
+            </div>
+            <div className={cn(
+              'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
+              isNeutral
+                ? 'bg-muted text-muted-foreground'
+                : isPositive
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  : 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+            )}>
+              {isNeutral ? (
+                <span>✓ Settled</span>
+              ) : isPositive ? (
+                <span>💰 gets back {formatCurrency(item.netBalance, item.currency)}</span>
+              ) : (
+                <span>💸 owes {formatCurrency(Math.abs(item.netBalance), item.currency)}</span>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -139,12 +143,13 @@ async function SettlementsTab({ groupId }: { groupId: string }) {
           key={i}
           className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
         >
-          <div className="flex-1 text-sm text-foreground">
-            <span className="font-medium">{debt.fromUser.name}</span>
-            <span className="text-muted-foreground"> owes </span>
-            <span className="font-medium">{debt.toUser.name}</span>
+          <span className="text-lg shrink-0">💸</span>
+          <div className="flex-1 min-w-0 text-sm">
+            <span className="font-semibold text-foreground">{debt.fromUser.name}</span>
+            <span className="text-muted-foreground mx-1.5">needs to pay</span>
+            <span className="font-semibold text-foreground">{debt.toUser.name}</span>
           </div>
-          <span className="font-semibold text-sm text-rose-600 dark:text-rose-400">
+          <span className="font-bold text-sm text-rose-600 dark:text-rose-400 shrink-0">
             {formatCurrency(debt.amount, debt.currency)}
           </span>
         </div>
@@ -181,13 +186,31 @@ export default async function GroupPage({ params, searchParams }: GroupPageProps
             { label: group.name },
           ]}
         />
-        <Link
-          href={`/groups/${groupId}/settings`}
-          className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors shrink-0"
-        >
-          <Settings className="w-4 h-4" />
-          <span className="hidden sm:inline">Settings</span>
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href={`/groups/${groupId}/expenses/new`}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Expense</span>
+          </Link>
+          <a
+            href={`/api/export/${groupId}`}
+            download
+            className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+            title="Export as PDF"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Export</span>
+          </a>
+          <Link
+            href={`/groups/${groupId}/settings`}
+            className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline">Settings</span>
+          </Link>
+        </div>
       </div>
 
       {/* Members row */}
@@ -234,16 +257,6 @@ export default async function GroupPage({ params, searchParams }: GroupPageProps
         {activeTab === 'settlements' && <SettlementsTab groupId={groupId} />}
       </Suspense>
 
-      {/* FAB for mobile */}
-      {activeTab === 'expenses' && (
-        <Link
-          href={`/groups/${groupId}/expenses/new`}
-          className="fixed bottom-20 right-4 lg:hidden inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Expense
-        </Link>
-      )}
     </div>
   );
 }

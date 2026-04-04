@@ -192,13 +192,17 @@ function buildDocument(
           )}
         </View>
 
-        {/* Settlement plan */}
-        {group.simplifyDebts && debts.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Settlement Plan</Text>
-            <View style={styles.table}>
+        {/* Settlement plan — always shown so it's clear who owes whom */}
+        <Text style={styles.sectionTitle}>Who Owes Whom</Text>
+        <View style={styles.table}>
+          {debts.length === 0 ? (
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.neutral]}>All settled up — no payments needed.</Text>
+            </View>
+          ) : (
+            <>
               <View style={[styles.tableRow, styles.tableHeader]}>
-                <Text style={[styles.tableHeaderCell, { flex: 2 }]}>From</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Owes</Text>
                 <Text style={[styles.tableHeaderCell, { flex: 2 }]}>To</Text>
                 <Text style={[styles.tableHeaderCell, styles.cellAmount]}>Amount</Text>
               </View>
@@ -206,14 +210,14 @@ function buildDocument(
                 <View key={i} style={styles.debtRow}>
                   <Text style={[styles.cell, { flex: 2 }]}>{debt.fromUser.name}</Text>
                   <Text style={[styles.cell, { flex: 2 }]}>{debt.toUser.name}</Text>
-                  <Text style={[styles.cell, styles.cellAmount]}>
+                  <Text style={[styles.cell, styles.cellAmount, styles.negative]}>
                     {formatCurrency(debt.amount, debt.currency)}
                   </Text>
                 </View>
               ))}
-            </View>
-          </>
-        )}
+            </>
+          )}
+        </View>
       </Page>
     </Document>
   );

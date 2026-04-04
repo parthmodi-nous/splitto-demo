@@ -94,42 +94,57 @@ export function SettlementPlan({ debts, groupId, onSettle, isLoading }: Settleme
               key={`${debt.from.id}-${debt.to.id}-${index}`}
               variants={itemVariants}
               layout
-              className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4"
+              className="rounded-xl border border-border bg-card overflow-hidden"
             >
-              {/* From user */}
-              <UserAvatar user={debt.from} />
-
-              {/* Arrow + amount */}
-              <div className="flex flex-1 flex-col items-center gap-1">
-                <span
-                  className={cn(
-                    'text-lg font-bold tabular-nums',
-                    'text-rose-600 dark:text-rose-400',
-                  )}
-                >
+              {/* Header strip */}
+              <div className="flex items-center justify-between gap-2 bg-rose-50 dark:bg-rose-900/20 border-b border-rose-100 dark:border-rose-900/40 px-4 py-2">
+                <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                  💸 Payment needed
+                </span>
+                <span className="text-base font-bold tabular-nums text-rose-700 dark:text-rose-400">
                   {formatCurrency(debt.amount, debt.currency)}
                 </span>
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <div className="h-px w-8 bg-border" />
-                  <ArrowRight className="w-4 h-4 shrink-0" />
-                  <div className="h-px w-8 bg-border" />
-                </div>
-                <span className="text-xs text-muted-foreground">pays</span>
               </div>
 
-              {/* To user */}
-              <UserAvatar user={debt.to} />
+              {/* Body: from → to */}
+              <div className="flex items-center gap-3 px-4 py-3">
+                {/* Payer */}
+                <div className="flex flex-col items-center gap-1 min-w-0">
+                  <UserAvatar user={debt.from} />
+                  <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                    💸 paying
+                  </span>
+                </div>
 
-              {/* Settle button */}
-              <Button
-                size="sm"
-                variant="outline"
-                className="ml-2 shrink-0"
-                onClick={() => setDialogDebt(debt)}
-                disabled={isLoading}
-              >
-                Settle
-              </Button>
+                {/* Arrow */}
+                <div className="flex flex-1 flex-col items-center gap-0.5">
+                  <div className="flex items-center gap-1 w-full">
+                    <div className="h-px flex-1 bg-border" />
+                    <ArrowRight className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">sends to</span>
+                </div>
+
+                {/* Receiver */}
+                <div className="flex flex-col items-center gap-1 min-w-0">
+                  <UserAvatar user={debt.to} />
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                    💰 receives
+                  </span>
+                </div>
+
+                {/* Settle button */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto shrink-0"
+                  onClick={() => setDialogDebt(debt)}
+                  disabled={isLoading}
+                >
+                  Mark Paid ✓
+                </Button>
+              </div>
             </motion.li>
           ))}
         </AnimatePresence>
