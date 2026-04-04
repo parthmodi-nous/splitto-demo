@@ -7,12 +7,19 @@ import { GroupCard } from '@/components/groups/group-card';
 
 function GroupsGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-44 rounded-xl border border-border bg-card animate-pulse"
-        />
+        <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="h-1.5 shimmer" />
+          <div className="p-4 space-y-3">
+            <div className="h-4 w-2/3 rounded-md shimmer" />
+            <div className="h-3 w-1/3 rounded-md shimmer" />
+            <div className="flex gap-2">
+              {[0,1,2].map(j => <div key={j} className="w-7 h-7 rounded-full shimmer" />)}
+            </div>
+            <div className="h-6 w-24 rounded-full shimmer" />
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -24,19 +31,19 @@ async function GroupsList() {
 
   if (groups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center rounded-xl border border-dashed border-border">
-        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-          <span className="text-xl">🗂️</span>
+      <div className="flex flex-col items-center justify-center py-20 gap-5 text-center rounded-2xl border-2 border-dashed border-border">
+        <div className="w-16 h-16 rounded-2xl gradient-violet flex items-center justify-center shadow-lg">
+          <span className="text-3xl">🗂️</span>
         </div>
         <div>
-          <p className="font-medium text-foreground">No groups yet</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create a group to start splitting expenses with friends.
+          <p className="font-bold text-foreground text-lg">No groups yet</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+            Create a group to start splitting expenses with friends and family.
           </p>
         </div>
         <Link
           href="/groups/new"
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl gradient-violet text-white px-5 py-2.5 text-sm font-semibold shadow-sm active:scale-95 transition-transform"
         >
           <Plus className="w-4 h-4" />
           Create your first group
@@ -46,7 +53,7 @@ async function GroupsList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {groups.map((group) => (
         <GroupCard
           key={group.id}
@@ -73,7 +80,7 @@ export default function GroupsPage() {
         action={
           <Link
             href="/groups/new"
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl gradient-violet text-white px-4 py-2 text-sm font-semibold shadow-sm active:scale-95 transition-transform"
           >
             <Plus className="w-4 h-4" />
             New Group

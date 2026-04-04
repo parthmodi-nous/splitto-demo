@@ -13,17 +13,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <Providers>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen overflow-x-hidden">
         <Sidebar groups={groups} />
-        <main className="flex-1 flex flex-col min-h-screen pb-16 lg:pb-0 lg:ml-64">
+        <main className="flex-1 flex flex-col min-h-screen w-0 pb-16 lg:pb-0 lg:ml-64 overflow-x-hidden">
           <Header />
-          <PageTransition>
-            <Suspense>{children}</Suspense>
-          </PageTransition>
+          <div className="flex-1 overflow-x-hidden">
+            <PageTransition>
+              <Suspense>{children}</Suspense>
+            </PageTransition>
+          </div>
         </main>
       </div>
       <MobileNav />
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-center" />
     </Providers>
   );
 }

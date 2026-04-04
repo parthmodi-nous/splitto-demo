@@ -2,31 +2,20 @@ import { ReceiptText } from 'lucide-react';
 import Link from 'next/link';
 import { UserSwitcher } from './user-switcher';
 
-interface HeaderProps {
-  title?: string;
-}
-
-export function Header({ title }: HeaderProps) {
+export function Header() {
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 px-4 gap-4">
-      {/* Mobile logo */}
+    <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border glass px-4 gap-3 shrink-0">
+      {/* Mobile logo — hidden on desktop (sidebar handles it) */}
       <Link
         href="/"
         className="flex items-center gap-2 lg:hidden shrink-0"
         aria-label="SplitLedger home"
       >
-        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground">
-          <ReceiptText className="w-4 h-4" />
+        <div className="flex items-center justify-center w-7 h-7 rounded-lg gradient-violet text-white shadow-sm">
+          <ReceiptText className="w-3.5 h-3.5" />
         </div>
-        <span className="font-bold text-sm text-foreground">SplitLedger</span>
+        <span className="font-bold text-sm text-foreground tracking-tight">SplitLedger</span>
       </Link>
-
-      {/* Page title */}
-      {title && (
-        <h1 className="text-base font-semibold text-foreground hidden sm:block truncate flex-1">
-          {title}
-        </h1>
-      )}
 
       <div className="ml-auto flex items-center gap-2">
         <UserSwitcher />
