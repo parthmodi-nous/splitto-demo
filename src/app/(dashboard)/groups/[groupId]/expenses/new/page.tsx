@@ -31,11 +31,11 @@ export default async function NewExpensePage({ params }: NewExpensePageProps) {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 max-w-2xl mx-auto w-full space-y-6">
       <PageHeader
         title="Add Expense"
         breadcrumbs={[
-          { label: 'Groups', href: '/' },
+          { label: 'Groups', href: '/groups' },
           { label: group.name, href: `/groups/${groupId}` },
           { label: 'Add Expense' },
         ]}
@@ -50,13 +50,12 @@ export default async function NewExpensePage({ params }: NewExpensePageProps) {
         }
       />
 
-      <div className="max-w-xl">
-        <ExpenseForm
-          groupId={groupId}
-          members={members}
-          currentUserId={currentUser.id}
-        />
-      </div>
+      <ExpenseForm
+        groupId={groupId}
+        members={members}
+        currentUserId={currentUser.id}
+        defaultCurrency={group.defaultCurrency}
+      />
     </div>
   );
 }

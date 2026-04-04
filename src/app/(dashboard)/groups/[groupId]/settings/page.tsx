@@ -28,7 +28,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   const isOwner = currentMember?.role === 'owner';
 
   return (
-    <div className="p-4 sm:p-6 max-w-2xl mx-auto w-full space-y-8">
+    <div className="p-4 sm:p-6 max-w-2xl mx-auto w-full space-y-6">
       <PageHeader
         title="Group Settings"
         breadcrumbs={[

@@ -3,7 +3,7 @@
 import { useState, useCallback, useTransition } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Loader2, CalendarDays } from 'lucide-react';
+import { Loader2, CalendarDays, FileText, StickyNote } from 'lucide-react';
 import { createExpense, updateExpense } from '@/actions/expenses';
 import { createExpenseSchema } from '@/lib/validators/expense';
 import { EXPENSE_CATEGORIES } from '@/lib/constants';
@@ -14,7 +14,6 @@ import { CurrencyInput } from '@/components/shared/currency-input';
 import { CategoryPicker } from '@/components/expenses/category-picker';
 import { SplitSelector } from '@/components/expenses/split-selector';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 type SplitType = 'equal' | 'exact' | 'percentage' | 'shares' | 'adjustment';
@@ -36,6 +35,7 @@ interface ExpenseFormProps {
   groupId: string;
   members: Member[];
   currentUserId: string;
+  defaultCurrency?: string;
   expense?: ExpenseWithDetails;
   onSuccess?: () => void;
 }
@@ -66,6 +66,7 @@ export function ExpenseForm({
   groupId,
   members,
   currentUserId,
+  defaultCurrency = 'INR',
   expense,
   onSuccess,
 }: ExpenseFormProps) {
@@ -73,7 +74,7 @@ export function ExpenseForm({
 
   const [description, setDescription] = useState(expense?.description ?? '');
   const [amount, setAmount] = useState(expense ? parseFloat(expense.amount) : 0);
-  const [currencyCode, setCurrencyCode] = useState(expense?.currency ?? 'USD');
+  const [currencyCode, setCurrencyCode] = useState(expense?.currency ?? defaultCurrency);
   const [paidBy, setPaidBy] = useState(expense?.paidBy ?? currentUserId);
   const [date, setDate] = useState(expense?.date ?? todayDateString());
   const [category, setCategory] = useState<string>(expense?.category ?? 'other');
@@ -184,10 +185,14 @@ export function ExpenseForm({
     EXPENSE_CATEGORIES.find((c) => c.value === category)?.icon ?? '📦';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 pb-24 sm:pb-6">
-      {/* Description */}
+    <form onSubmit={handleSubmit} className="space-y-4 pb-24 sm:pb-6">
+
+      {/* — Description — */}
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <label htmlFor="description" className="flex items-center gap-1.5 text-sm font-medium">
+          <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+          Description
+        </label>
         <input
           id="description"
           type="text"
@@ -196,8 +201,8 @@ export function ExpenseForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What was this expense for?"
           className={cn(
-            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-            errors.description && 'border-destructive focus-visible:ring-destructive'
+            'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            errors.description ? 'border-destructive' : 'border-input'
           )}
         />
         {errors.description && (
@@ -205,24 +210,57 @@ export function ExpenseForm({
         )}
       </div>
 
-      {/* Amount + Currency */}
+      {/* — Amount + Date row — */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium">Amount</label>
+          <CurrencyInput
+            value={amount}
+            onChange={setAmount}
+            currency={currencyCode}
+            onCurrencyChange={setCurrencyCode}
+            className={cn(errors.amount && 'border-destructive')}
+          />
+          {errors.amount && (
+            <p className="text-xs text-destructive">{errors.amount}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="date" className="block text-sm font-medium">Date</label>
+          <div className="relative">
+            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className={cn(
+                'flex h-10 w-full rounded-md border bg-background pl-9 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                errors.date ? 'border-destructive' : 'border-input'
+              )}
+            />
+          </div>
+          {errors.date && (
+            <p className="text-xs text-destructive">{errors.date}</p>
+          )}
+        </div>
+      </div>
+
+      {/* — Category — */}
       <div className="space-y-1.5">
-        <Label>Amount</Label>
-        <CurrencyInput
-          value={amount}
-          onChange={setAmount}
-          currency={currencyCode}
-          onCurrencyChange={setCurrencyCode}
-          className={cn(errors.amount && 'border-destructive')}
-        />
-        {errors.amount && (
-          <p className="text-xs text-destructive">{errors.amount}</p>
+        <label className="flex items-center gap-1.5 text-sm font-medium">
+          Category <span className="ml-0.5">{categoryIcon}</span>
+        </label>
+        <CategoryPicker value={category} onChange={setCategory} />
+        {errors.category && (
+          <p className="text-xs text-destructive">{errors.category}</p>
         )}
       </div>
 
-      {/* Paid by */}
+      {/* — Paid by — */}
       <div className="space-y-1.5">
-        <Label>Paid by</Label>
+        <label className="block text-sm font-medium">Paid by</label>
         <div className="flex flex-wrap gap-2">
           {members.map((m) => {
             const { bg, text } = getAvatarColorClasses(m.avatarColor);
@@ -258,42 +296,9 @@ export function ExpenseForm({
         )}
       </div>
 
-      {/* Date */}
+      {/* — Split — */}
       <div className="space-y-1.5">
-        <Label htmlFor="date">Date</Label>
-        <div className="relative">
-          <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <input
-            id="date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className={cn(
-              'flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              errors.date && 'border-destructive focus-visible:ring-destructive'
-            )}
-          />
-        </div>
-        {errors.date && (
-          <p className="text-xs text-destructive">{errors.date}</p>
-        )}
-      </div>
-
-      {/* Category */}
-      <div className="space-y-1.5">
-        <Label>
-          Category{' '}
-          <span className="ml-1">{categoryIcon}</span>
-        </Label>
-        <CategoryPicker value={category} onChange={setCategory} />
-        {errors.category && (
-          <p className="text-xs text-destructive">{errors.category}</p>
-        )}
-      </div>
-
-      {/* Split selector */}
-      <div className="space-y-1.5">
-        <Label>Split</Label>
+        <label className="block text-sm font-medium">Split</label>
         <SplitSelector
           members={members}
           totalAmount={amount}
@@ -307,15 +312,18 @@ export function ExpenseForm({
         />
       </div>
 
-      {/* Notes */}
+      {/* — Notes — */}
       <div className="space-y-1.5">
-        <Label htmlFor="notes">Notes (optional)</Label>
+        <label htmlFor="notes" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+          <StickyNote className="w-3.5 h-3.5" />
+          Notes <span className="font-normal text-xs">(optional)</span>
+        </label>
         <Textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Any additional details..."
-          rows={3}
+          rows={2}
           className="resize-none"
         />
         {errors.notes && (
@@ -323,7 +331,7 @@ export function ExpenseForm({
         )}
       </div>
 
-      {/* Submit — sticky on mobile */}
+      {/* — Submit — sticky on mobile — */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border sm:static sm:p-0 sm:bg-transparent sm:border-0">
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending && <Loader2 className="w-4 h-4 animate-spin" />}

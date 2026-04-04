@@ -30,7 +30,7 @@ export default async function ExpenseDetailPage({ params }: ExpenseDetailPagePro
   }));
 
   return (
-    <div className="p-4 sm:p-6 max-w-2xl mx-auto w-full">
+    <div className="p-4 sm:p-6 max-w-2xl mx-auto w-full space-y-6">
       <PageHeader
         title="Edit Expense"
         breadcrumbs={[
@@ -39,14 +39,13 @@ export default async function ExpenseDetailPage({ params }: ExpenseDetailPagePro
           { label: 'Edit Expense' },
         ]}
       />
-      <div className="mt-6">
-        <ExpenseForm
-          groupId={groupId}
-          members={members}
-          currentUserId={currentUser.id}
-          expense={expense}
-        />
-      </div>
+      <ExpenseForm
+        groupId={groupId}
+        members={members}
+        currentUserId={currentUser.id}
+        defaultCurrency={group.defaultCurrency}
+        expense={expense}
+      />
     </div>
   );
 }

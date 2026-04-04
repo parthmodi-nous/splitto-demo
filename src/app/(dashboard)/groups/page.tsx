@@ -66,7 +66,7 @@ async function GroupsList() {
 
 export default function GroupsPage() {
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
       <PageHeader
         title="Your Groups"
         description="Manage your expense splitting groups."

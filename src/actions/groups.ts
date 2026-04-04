@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { eq, and, inArray } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
 import {
   groups,
@@ -12,6 +13,7 @@ import {
 } from '@/lib/db/schema';
 import { requireCurrentUser } from '@/lib/auth';
 import { createGroupSchema, updateGroupSchema } from '@/lib/validators/group';
+import { AVATAR_COLORS } from '@/lib/constants';
 import type { ActionResponse } from '@/types';
 import type { Group, GroupWithMembers, GroupMemberWithUser } from '@/types';
 
@@ -62,6 +64,33 @@ export async function createGroup(
       userId: currentUser.id,
       role: 'owner',
     });
+
+    // Add guest members by name
+    if (parsed.data.memberNames && parsed.data.memberNames.length > 0) {
+      const colors = AVATAR_COLORS.map((c) => c.value);
+      for (let i = 0; i < parsed.data.memberNames.length; i++) {
+        const memberName = parsed.data.memberNames[i];
+        if (!memberName) continue;
+        const guestId = randomUUID();
+        const avatarColor = colors[i % colors.length] ?? 'emerald';
+        const [guestUser] = await db
+          .insert(users)
+          .values({
+            id: guestId,
+            name: memberName,
+            email: `guest-${guestId}@splitto.guest`,
+            avatarColor,
+          })
+          .returning();
+        if (guestUser) {
+          await db.insert(groupMembers).values({
+            groupId: group.id,
+            userId: guestUser.id,
+            role: 'member',
+          });
+        }
+      }
+    }
 
     await db.insert(activityLog).values({
       groupId: group.id,
