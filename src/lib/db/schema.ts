@@ -15,6 +15,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+
 // Enums
 export const memberRoleEnum = pgEnum('member_role', ['owner', 'admin', 'member']);
 export const expenseCategoryEnum = pgEnum('expense_category', [
@@ -52,11 +53,51 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).unique().notNull(),
+  emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
-  avatarColor: varchar('avatar_color', { length: 20 }).notNull(),
+  avatarColor: varchar('avatar_color', { length: 20 }).notNull().default('blue'),
   defaultCurrency: varchar('default_currency', { length: 3 }).default('USD').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// BetterAuth: session table
+export const sessions = pgTable('session', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+});
+
+// BetterAuth: account table (OAuth providers + email/password)
+export const accounts = pgTable('account', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(),
+  accessToken: text('access_token'),
+  refreshToken: text('refresh_token'),
+  idToken: text('id_token'),
+  accessTokenExpiresAt: timestamp('access_token_expires_at'),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+  scope: text('scope'),
+  password: text('password'),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+});
+
+// BetterAuth: verification table (email verification, password reset)
+export const verifications = pgTable('verification', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at'),
+  updatedAt: timestamp('updated_at'),
 });
 
 // Groups table

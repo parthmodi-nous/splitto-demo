@@ -27,27 +27,12 @@ async function DashboardContent() {
   ]);
 
   const greeting = getTimeOfDayGreeting();
-
-  if (!currentUser) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-          <span className="text-2xl">👋</span>
-        </div>
-        <h2 className="text-xl font-semibold text-foreground">Welcome to SplitLedger</h2>
-        <p className="text-muted-foreground max-w-sm">
-          Select a demo user to get started. Use the user switcher in the top right corner.
-        </p>
-      </div>
-    );
-  }
-
   const groups = groupsResult.success ? groupsResult.data : [];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${greeting}, ${currentUser.name.split(' ')[0]}`}
+        title={`${greeting}, ${currentUser?.name.split(' ')[0] ?? 'there'}`}
         description="Here's an overview of your groups and activity."
         action={
           <Link

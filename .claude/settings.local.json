@@ -14,7 +14,18 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(npx next:*)",
       "Bash(pnpm db:push)",
-      "Bash(psql -U postgres -c \"\\\\l\")"
+      "Bash(psql -U postgres -c \"\\\\l\")",
+      "Bash(ls C:/Users/parthrm/Documents/Projects/splitto/*.env* C:/Users/parthrm/Documents/Projects/splitto/.env*)",
+      "Bash(pnpm drizzle-kit:*)",
+      "Bash(pnpm db:migrate)",
+      "Bash(pnpm db:seed)",
+      "Bash(grep -v \"Use \\\\`node\")",
+      "Bash(pnpm exec:*)",
+      "Bash(pnpm build:*)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/sign-up/email -H 'Content-Type: application/json' -d '{\"name\":\"Test User\",\"email\":\"test@example.com\",\"password\":\"password123\"}')",
+      "Bash(curl:*)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(exit 0)"
     ]
   }
 }

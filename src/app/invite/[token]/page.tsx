@@ -198,7 +198,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </div>
           ) : (
             <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground text-center">
-              Please select a demo user to join this group.
+              Please sign in to join this group.
             </div>
           )}
 

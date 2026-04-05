@@ -1,4 +1,3 @@
-export const MOCK_USER_COOKIE = 'splitledger-current-user';
 export const DARK_MODE_COOKIE = 'splitledger-theme';
 
 export const EXPENSE_CATEGORIES = [

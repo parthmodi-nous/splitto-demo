@@ -1,6 +1,6 @@
 import { ReceiptText } from 'lucide-react';
 import Link from 'next/link';
-import { UserSwitcher } from './user-switcher';
+import { UserMenu } from './user-menu';
 
 export function Header() {
   return (
@@ -9,16 +9,16 @@ export function Header() {
       <Link
         href="/"
         className="flex items-center gap-2 lg:hidden shrink-0"
-        aria-label="SplitLedger home"
+        aria-label="Splitto home"
       >
         <div className="flex items-center justify-center w-7 h-7 rounded-lg gradient-violet text-white shadow-sm">
           <ReceiptText className="w-3.5 h-3.5" />
         </div>
-        <span className="font-bold text-sm text-foreground tracking-tight">SplitLedger</span>
+        <span className="font-bold text-sm text-foreground tracking-tight">Splitto</span>
       </Link>
 
       <div className="ml-auto flex items-center gap-2">
-        <UserSwitcher />
+        <UserMenu />
       </div>
     </header>
   );

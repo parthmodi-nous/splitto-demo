@@ -1,29 +1,106 @@
-// TODO: Replace with real auth
-import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { cache } from 'react';
+import { headers } from 'next/headers';
 import { eq } from 'drizzle-orm';
-import { MOCK_USER_COOKIE } from '@/lib/constants';
+import { db } from '@/lib/db';
+import { users, sessions, accounts, verifications } from '@/lib/db/schema';
+import { AVATAR_COLORS } from '@/lib/constants';
 import type { User } from '@/lib/db/schema';
 
-// The single point where the current user is resolved.
-// When real auth is added, only this function needs to change.
-export async function getCurrentUser(): Promise<User | null> {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get(MOCK_USER_COOKIE)?.value;
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: 'pg',
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+      verification: verifications,
+    },
+  }),
 
-  if (!userId) return null;
+  advanced: {
+    // Use UUID format for all generated IDs — required because our
+    // users.id (and all FK references) are uuid type in PostgreSQL.
+    database: {
+      generateId: 'uuid',
+    },
+  },
 
-  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+  },
+
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+
+  user: {
+    additionalFields: {
+      avatarColor: {
+        type: 'string',
+        required: false,
+        defaultValue: 'blue',
+        input: false,
+      },
+      defaultCurrency: {
+        type: 'string',
+        required: false,
+        defaultValue: 'USD',
+        input: true,
+      },
+    },
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const colors = AVATAR_COLORS.map((c) => c.value);
+          const randomColor = colors[Math.floor(Math.random() * colors.length)] ?? 'blue';
+          return {
+            data: {
+              ...user,
+              avatarColor: randomColor,
+            },
+          };
+        },
+      },
+    },
+  },
+});
+
+// Cached session fetch — deduped per request so layout + page + actions
+// never make more than one DB session lookup per render cycle.
+const getSessionCached = cache(async () => {
+  try {
+    return await auth.api.getSession({ headers: await headers() });
+  } catch {
+    return null;
+  }
+});
+
+// Cached user fetch — deduped per request.
+export const getCurrentUser = cache(async (): Promise<User | null> => {
+  const session = await getSessionCached();
+  if (!session?.user?.id) return null;
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+
   return user ?? null;
-}
+});
 
-// Returns the current user or throws if not found.
-// Use this in server actions that require an authenticated user.
+// Returns the current user or throws if unauthenticated.
 export async function requireCurrentUser(): Promise<User> {
   const user = await getCurrentUser();
-  if (!user) {
-    throw new Error('No user selected. Please select a demo user to continue.');
-  }
+  if (!user) throw new Error('Not authenticated');
   return user;
 }
